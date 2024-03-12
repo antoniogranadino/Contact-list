@@ -1,3 +1,14 @@
-/* 
-    General Styles
-*/
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.text {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 50px;
+  letter-spacing: 5px;
+  text-align: left;
+  align-items: center;
+  font-size: large;
+}

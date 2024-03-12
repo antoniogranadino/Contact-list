@@ -1,45 +1,69 @@
+const API_URL = "https://playground.4geeks.com/apis/fake/contact/";
+const AGENDA_SLUG = "antoniogranadino";
 const getState = ({ getStore, getActions, setStore }) => {
-	return {
-		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
-		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+  return {
+    store: {
+      agenda: null,
+    },
+    actions: {
+      getAgenda: async () => {
+        const response = await fetch(`${API_URL}agenda/${AGENDA_SLUG}`);
+        console.log(response);
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data);
+          setStore({ agenda: data });
+          return true;
+        }
+        setStore({ agenda: false });
+        return false;
+      },
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+      createContact: async (newContact) => {
+        const actions = getActions();
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(newContact),
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = response.json();
+        if (response.ok) {
+          actions.getAgenda();
+          return data;
+        }
+        return null;
+      },
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
+      updateContact: async (newContact) => {
+        const actions = getActions();
+        const response = await fetch(API_URL + newContact.id, {
+          method: "PUT",
+          body: JSON.stringify(newContact),
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = response.json();
+        if (response.ok) {
+          actions.getAgenda();
+          return data;
+        }
+        return null;
+      },
+
+      deleteContact: async (id) => {
+        const store = getStore();
+        const response = await fetch(API_URL + id, {
+          method: "DELETE",
+        });
+        const data = response.json();
+        if (response.ok) {
+          setStore({
+            agenda: store.agenda.filter((contact) => contact.id != id),
+          });
+          return data;
+        }
+        return null;
+      },
+    },
+  };
 };
-
 export default getState;
